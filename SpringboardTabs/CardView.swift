@@ -59,7 +59,7 @@ class CardView: UIView {
             theLabels.append(v)
         }
         
-        layer.cornerRadius = 6
+        layer.cornerRadius = 40
         
         // border
         layer.borderWidth = 1.0

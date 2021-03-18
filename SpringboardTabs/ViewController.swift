@@ -18,7 +18,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .systemYellow
+//        view.backgroundColor = .systemYellow
         
         switcherView.translatesAutoresizingMaskIntoConstraints = false
         switcherView.backgroundColor = .white
