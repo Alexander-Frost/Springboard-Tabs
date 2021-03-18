@@ -18,7 +18,7 @@ class SwitcherView: UIView {
     // useful during development...
     //  if true, highlight the current "control" card in yellow
     //  if false, leave them all cyan
-    let showHighlight: Bool = false
+    let showHighlight: Bool = true
     
     // MARK: - Actions
     
@@ -26,9 +26,12 @@ class SwitcherView: UIView {
         let translation = gesture.translation(in: self)
         
         var pt = gesture.location(in: self)
-        pt.y = self.bounds.midY
+        pt.y = bounds.midY
+        
         for c in cards.reversed() {
+            // if card is in the middle
             if c.frame.contains(pt) {
+                // current card is in the midle
                 if let cc = currentCard {
                     if  let idx1 = cards.firstIndex(of: cc),
                         let idx2 = cards.firstIndex(of: c),
@@ -52,6 +55,7 @@ class SwitcherView: UIView {
         }
         switch gesture.state {
         case .changed:
+            
             if let controlCard = currentCard {
                 // update card leading edge
                 controlCard.frame.origin.x += translation.x
@@ -77,7 +81,7 @@ class SwitcherView: UIView {
                 let offset: Int = Int(floor(velocity.x / 500.0))
                 // step up or down in array of cards based on velocity
                 let newIDX = max(min(idx - offset, cards.count - 1), 0)
-//                doCentering(for: cards[newIDX])
+                doCentering(for: cards[newIDX])
             }
             currentCard = nil
         default:
@@ -135,20 +139,20 @@ class SwitcherView: UIView {
                         }
                         thisCard.isHidden = false
                     }
-//                    doCentering(for: cards.last!)
+                    doCentering(for: cards.last!)
                 }
             }
         }
     }
     
     private func updateCards(_ controlCard: CardView) -> Void {
-        guard let idx = cards.firstIndex(of: controlCard) else {
+        guard let index = cards.firstIndex(of: controlCard) else {
             print("controlCard not found in array of cards - can't update")
             return
         }
         
         var relativeCard: CardView = controlCard
-        var n = idx
+        var n = index
         
         // for each card to the right of the control card
         while n < cards.count - 1 {
@@ -164,7 +168,7 @@ class SwitcherView: UIView {
         
         // reset relative card and index
         relativeCard = controlCard
-        n = idx
+        n = index
         
         // for each card to the left of the control card
         while n > 0 {
@@ -178,17 +182,18 @@ class SwitcherView: UIView {
             n -= 1
         }
         
-        self.cards.forEach { c in
+        // Scale
+        cards.forEach { c in
             let x = c.frame.origin.x
-            
+
             // scale transform each card between 71% and 75%
             //  based on card's leading edge distance to one-half the view width
             let pct = x / (self.bounds.width * 0.5)
             let sc = 0.71 + (0.04 * min(pct, 1.0))
             c.transform = CGAffineTransform(scaleX: sc, y: sc)
-            
+
             // set translucent for far left cards
-            if cards.count > 1 {
+            if self.cards.count > 1 {
                 c.alpha = min(1.0, x / 10.0)
             }
         }
@@ -218,6 +223,8 @@ class SwitcherView: UIView {
             // if it's the Bottom card, center it + just a little to the right
             newX = self.bounds.width * 0.51
         }
+        
+        // Ease out
         UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.1, options: [.allowUserInteraction, .curveEaseOut], animations: {
             controlCard.center.x = newX
             self.updateCards(controlCard)
